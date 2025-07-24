@@ -37,17 +37,49 @@ UPDATE POSTS
 SET view_count = null
 WHERE post_id = 2;
 
-SELECT * FROM POSTS
+SELECT SUM(VIEW_COUNT)
+FROM POSTS
 WHERE post_id BETWEEN 1 AND 3
 ;
 
---
-SELECT
-    user_id
-FROM
-    POSTS
+SELECT 
+  AVG(VIEW_COUNT) AS "평균 조회수",
+  SUM(VIEW_COUNT) AS "총 조회수",
+  COUNT(VIEW_COUNT) AS "게시물 수"
+FROM POSTS
+WHERE post_id BETWEEN 1 AND 3
 ;
--- HAVING 절
+
+SELECT COUNT(*) AS "총 댓글수" FROM COMMENTS;
+
+-- 유저별로 피드를 몇개씩 썼는지 알고 싶다.
+SELECT * FROM POSTS;
+
+SELECT
+  USER_ID, 
+  COUNT(*) AS "유저별 피드 수"
+FROM POSTS
+GROUP BY USER_ID -- USER_ID가 같은 게시물끼리 묶는다.
+ORDER BY USER_ID
+;
+
+SELECT 
+  USER_ID, 
+  POST_TYPE, 
+  CONTENT 
+FROM POSTS
+ORDER BY USER_ID, POST_TYPE
+;
+
+SELECT
+  USER_ID, 
+  POST_TYPE,
+  COUNT(*) AS "유저의 종류별 피드 수"
+FROM POSTS
+GROUP BY USER_ID, POST_TYPE -- USER_ID와 POST_TYPE이 같은 게시물끼리 묶는다.
+ORDER BY USER_ID
+;
+
 SELECT
     user_id,
     COUNT(*) AS post_count
@@ -55,5 +87,27 @@ FROM
     POSTS
 GROUP BY
     user_id
-HAVING
-    COUNT(*) >= 10; -- 그룹화된 결과(COUNT(*))에 조건을 겁니다.
+HAVING COUNT(*) >= 10 -- 게시물을 10개 이상 쓴 사용자만 조회
+;
+
+-- POSTS 테이블에서 장문(20글자이상)의 피드를 쓴 게시물들의 개수를 보고 싶다.
+-- 유저별로 보고싶음
+SELECT
+    user_id,
+    COUNT(*) AS "장문 게시물 수"
+FROM
+    POSTS
+WHERE LENGTH(content) >= 30
+GROUP BY user_id
+HAVING COUNT(*) >= 5 -- 장문 게시물을 쓴 사용자만 조회
+; -- LENGTH 함수로 글자 수를 계산합니다.
+
+
+SELECT
+    post_id,
+    COUNT(*) AS like_count
+FROM LIKES
+WHERE creation_date >= TO_DATE('2024-01-01', 'YYYY-MM-DD') -- 1. 개별 '좋아요' 데이터를 먼저 필터링
+GROUP BY post_id -- 2. 게시물 ID 별로 그룹화
+HAVING COUNT(*) >= 20
+; -- 3. 그룹별 '좋아요' 수가 20개 이상인 그룹만 필터링
