@@ -42,5 +42,3 @@ START WITH
 CONNECT BY
     PRIOR comment_id = parent_comment_id
 ; 
-
-
