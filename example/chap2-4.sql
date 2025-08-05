@@ -78,3 +78,5 @@ FROM
 GROUP BY
     CUBE(user_id, post_type);
     
+
+    
